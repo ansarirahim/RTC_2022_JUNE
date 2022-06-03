@@ -1,0 +1,3 @@
+#!/bin/sh
+pasm -b P927c.p
+arm-linux-gnueabihf-g++  P927c.cpp -o P927c -lpthread -lprussdrv

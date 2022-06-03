@@ -1,0 +1,6 @@
+rm /root/JigID
+echo "$@">>JigID
+echo "ACK"
+
+
+

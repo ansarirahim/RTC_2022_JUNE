@@ -1,0 +1,181 @@
+// PRUSS program to drive a RTC Signal Error measurement and store the output in memory
+// that can be read by a Linux userspace program when an interrupt is sent
+// Writen by A. R. Anasri
+
+.origin 0               // offset of start of program in PRU memory
+.entrypoint START       // program entry point used by the debugger
+
+#define TRIGGER_PULSE_US    10
+#define INS_PER_US          200
+#define INS_PER_LOOP        2
+#define TRIGGER_COUNT       (TRIGGER_PULSE_US * INS_PER_US) / INS_PER_LOOP
+#define SAMPLE_DELAY_1MS    (1000 * INS_PER_US) / INS_PER_LOOP
+#define PRU0_R31_VEC_VALID  32
+#define PRU_EVTOUT_0	    3
+#define PRU_EVTOUT_1	    4
+
+// Using register 0 for all temporary storage (reused multiple times)
+START:
+   // Read number of samples to read and inter-sample delay
+   MOV    r0, 0x00000000        //load the memory location, number of samples
+   LBBO   r1, r0, 0, 4          //load the value into memory - keep r1
+   // Read the sample delay
+   MOV    r0, 0x00000004        //the sample delay is in the second 32-bits
+   LBBO   r2, r0, 0, 4          //the sample delay is stored in r2
+///////////////////////////////////////////start
+mov r3,0;
+ mov r0,1
+
+////////////
+LOOPFORONECYCLE:
+        SUB r0,r0,1
+
+   // start counting (measuring echo pulse width)  until the echo goes low
+wbc r31.t5
+
+wbc  r31.t14
+COUNTING0:
+   wbs  r31.t14
+   wbc r31.t14
+   ADD    r3, r3, 1             // increment the counter by 1
+   QBBC   COUNTING0, r31.t5      // loop if the echo is still high p927
+//
+mov r4,0;
+wbs r31.t5
+
+wbs  r31.t14
+COUNTINGLOW0:
+  
+      wbs r31.t14
+       wbc r31.t14
+        ADD R4,R4,1
+       QBBS COUNTINGLOW0,r31.t5
+       /////
+       MOV R5,0
+       wbc r31.t5
+
+wbc  r31.t14
+       COUNTING1:
+   wbs  r31.t14
+   wbc r31.t14
+   ADD    r5, r5, 1             // increment the counter by 1
+   QBBC   COUNTING1, r31.t5      // loop if the echo is still high p927
+//
+mov r6,0;
+wbs r31.t5
+
+wbs  r31.t14
+COUNTINGLOW1:
+  
+      wbs r31.t14
+       wbc r31.t14
+        ADD R6,R6,1
+       QBBS COUNTINGLOW1,r31.t5
+
+       ///
+
+       /////////
+   MOV R7,0
+   wbc r31.t5
+
+wbc  r31.t14
+       COUNTING2:
+   wbs  r31.t14
+   wbc r31.t14
+   ADD    r7, r7, 1             // increment the counter by 1
+   QBBC   COUNTING2, r31.t5      // loop if the echo is still high p927
+//
+mov r8,0;
+wbs r31.t5
+
+wbs  r31.t14
+COUNTINGLOW2:
+  
+      wbs r31.t14
+       wbc r31.t14
+        ADD R8,R8,1
+       QBBS COUNTINGLOW2,r31.t5
+       /////////
+
+            /////////
+   MOV R9,0
+   wbc r31.t5
+
+wbc  r31.t14
+       COUNTING3:
+   wbs  r31.t14
+   wbc r31.t14
+   ADD    r9, r9, 1             // increment the counter by 1
+   QBBC   COUNTING3, r31.t5      // loop if the echo is still high p927
+//
+mov r10,0;
+wbs r31.t5
+
+wbs  r31.t14
+COUNTINGLOW3:
+  
+      wbs r31.t14
+       wbc r31.t14
+        ADD R10,R10,1
+       QBBS COUNTINGLOW3,r31.t5
+       /////////
+           /////////
+   MOV R11,0
+   wbc r31.t5
+
+wbc  r31.t14
+       COUNTING4:
+   wbs  r31.t14
+   wbc r31.t14
+   ADD    r11, r11, 1             // increment the counter by 1
+   QBBC   COUNTING4, r31.t5      // loop if the echo is still high p927
+//
+mov r12,0;
+wbs r31.t5
+
+wbs  r31.t14
+COUNTINGLOW4:
+  
+      wbs r31.t14
+       wbc r31.t14
+        ADD R12,R12,1
+       QBBS COUNTINGLOW4,r31.t5
+       /////////
+QBNE LOOPFORONECYCLE, r0,0
+MOV    r0, 0x00000008        // going to write the result to this address
+   SBBO   r3, r0, 0, 4          // store the count at this address
+MOV    r0, 0x0000000C        // going to write the result to this address
+   SBBO   r4, r0, 0, 4          // store the count at this address
+   MOV    r0, 0x00000010        // going to write the result to this address
+   SBBO   r5, r0, 0, 4          // store the count at this address
+
+   MOV    r0, 0x00000014        // going to write the result to this address
+   SBBO   r6, r0, 0, 4          // store the count at this address
+
+     MOV    r0, 0x00000018       // going to write the result to this address
+   SBBO   r7, r0, 0, 4          // store the count at this address
+
+   MOV    r0, 0x0000001c        // going to write the result to this address
+   SBBO   r8, r0, 0, 4          // store the count at this address
+
+   MOV    r0, 0x00000020       // going to write the result to this address
+   SBBO   r9, r0, 0, 4          // store the count at this address
+
+   MOV    r0, 0x00000024        // going to write the result to this address
+   SBBO   r10, r0, 0, 4          // store the count at this address
+
+
+    MOV    r0, 0x00000028       // going to write the result to this address
+   SBBO   r11, r0, 0, 4          // store the count at this address
+
+   MOV    r0, 0x0000001c        // going to write the result to this address
+   SBBO   r12, r0, 0, 4          // store the count at this address
+
+
+   // generate an interrupt to update the display on the host computer
+   MOV R31.b0, PRU0_R31_VEC_VALID | PRU_EVTOUT_1
+
+END:
+   MOV R31.b0, PRU0_R31_VEC_VALID | PRU_EVTOUT_0
+   HALT
+

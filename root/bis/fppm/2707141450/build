@@ -1,0 +1,3 @@
+#!/bin/sh
+pasm -b Ferr.p
+g++ Ferr.c -o Ferr -lpthread -lprussdrv

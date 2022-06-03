@@ -1,0 +1,3 @@
+#!/bin/sh
+pasm -b Fppm.p
+g++ Fppm.c -o Fppm -lpthread -lprussdrv

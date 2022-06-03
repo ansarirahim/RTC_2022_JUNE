@@ -1,0 +1,229 @@
+/* PRUSS program to  Measure Frequency Error in PPM
+*  in Linux userspace by sending an interrupt.
+*  written by A. R. Ansari for Secure Meters Ltd @ Udaipur/India.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <prussdrv.h>
+#include <pruss_intc_mapping.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <iostream>
+#include <sstream>
+using namespace std;
+#define PRU_NUM 0
+#define ONEHZ 89947314
+#define  TWO56 390641
+#define FIVE12 156648+8		//843352
+#define CALIB512 843552
+#define  THREE2768 3052 
+#define  FOUR194304 20
+// freq 512 9767 counts for first
+// freq 512 156550 counts for full ==> 512MHZ=> ideally 100000 ==>56440 for eqp005-708
+// freq 512 156448
+//FREQ 1HZ ==> 899472
+#define FREQ512CALIB 156540
+#define FREQ1HZCALIB 909997+3	//89947314
+#define FREQ1HZ1 8994
+#define FREQ1HZ2 8992
+#define FREQ256 390641
+#define FREQ32768 3052
+#define FREQ32768CALIB (1000000-FREQ32768+6)
+#include<stdio.h>
+#include<fcntl.h>
+#include<unistd.h>
+#include<sys/ioctl.h>
+#include<stdint.h>
+#include<linux/spi/spidev.h>
+
+
+
+static void *pru0DataMemory;
+static unsigned int *pru0DataMemory_int;
+struct Freq {
+	unsigned int count;
+	unsigned  int calib;
+	unsigned  long ppmerror;
+	unsigned int min;
+	unsigned int max;
+	float avg;
+	
+
+	
+};
+#define TOTAL_CHANNELS 4
+Freq FreqChannel[TOTAL_CHANNELS];
+unsigned int  TargetFreq=512;//512;
+unsigned int   NoOfSamplesTaken=0;
+unsigned int 	SamplingFreq=10;
+unsigned int  ChannelIndex=0;
+unsigned int SampleIndex=0;
+#define FREQ1HZ1 8994
+#define FREQ1HZ2 8992
+#define FREQ4194304 30
+///#define FREQ1HZCALIB 8894729
+//FreqChannel[0].min=FREQ512CALIB;
+unsigned x1=1;
+#define FREQ256CALIB (FREQ256-100000)	//290000
+unsigned int sampleno=0;
+unsigned int sampleold=0;
+#define F512 65090
+#define F512C 934908
+void *threadFunction(void *value){
+   do {
+unsigned int  mod1=65104;
+	unsigned int channel=0;
+//sampleno
+      int notimes = prussdrv_pru_wait_event (PRU_EVTOUT_1);
+//for(channel=0;channel<2;channel++)
+// {
+ChannelIndex=0;//channel;
+//////////////printf("\n************");
+///if  ((sampleno==0)||(sampleno>sampleold))
+{
+
+for(unsigned i=0;i<4;i++){
+///if(*(pru0DataMemory_int+2+i) <mod1)
+{///     FreqChannel[i].count =mod1%(*(pru0DataMemory_int+2+i));///100014- *(pru0DataMemory_int+2)+F512C+100008;
+//printf(".........les than mod1");
+}
+if((*(pru0DataMemory_int+2+i))==mod1)
+{printf("\n==");
+FreqChannel[i].count=1000000;//10000000;
+}
+else if((*(pru0DataMemory_int+2+i))<mod1)
+{
+printf("+");
+FreqChannel[i].count=10000000-(mod1-FreqChannel[i].count);
+}
+else
+{//FreqChannel[i].count =((mod1)%(*(pru0DataMemory_int+2+i)));
+printf("?");
+FreqChannel[i].count=(-FreqChannel[i].count+mod1);//+10000000;//-10000000;
+}///100014- *(pru0DataMemory_int+3)+F512C+100008;
+
+//FreqChannel[2].count =mod1%*(pru0DataMemory_int+4);///100014- *(pru0DataMemory_int+4)+F512C+100008;
+///FreqChannel[3].count =mod1%*(pru0DataMemory_int+5);//=100014- *(pru0DataMemory_int+5)+F512C+100008;
+///else
+	///FreqChannel[i].count=*(pru0DataMemory_int+2+i);//-mod1;
+}
+sampleno=*(pru0DataMemory_int+2
+if(sampleno>sampleold){
+
+printf("\n*%u. Raw0=%u Raw1=%u Raw2=%u Raw3=%u",sampleno, FreqChannel[0].count,FreqChannel[1].count,FreqChannel[2].count,FreqChannel[3].count);
+
+}
+sampleold=sampleno;
+      //printf(is %f inches (%f cm)             \r", distin, distcm);
+
+      prussdrv_pru_clear_event (PRU_EVTOUT_1, PRU0_ARM_INTERRUPT);
+
+   } while (1);
+}
+int cin_int(void)
+{
+    std::string input = "";
+    int myNumber = 0;
+
+    while (true) {
+    getline(std::cin, input);
+    std::stringstream myStream(input);
+    if (myStream >> myNumber)
+        break;
+    }
+    return myNumber;    
+ }
+//int  **SampleArray;
+#define NOOFCHANNELS 4
+int  main (void)
+{
+unsigned int temp,temp1=0;
+//while(1) 
+
+{
+
+///Init_595();
+//printf("Minimum value for int: %u", numeric_limits<int>::min());
+
+printf("Please enter No. of Samples ");
+temp=cin_int();
+//int **array = malloc(nrows * sizeof *array + (nrows * (ncolumns * sizeof **array));
+//int  **SampleArray = malloc(temp * sizeof *SampleArray + (temp * (4 * sizeof **SampleArray)));
+//int **array = malloc (NOOFCHANNELS * sizeof(int *) + (NOOFCHANNELS * (temp * sizeof(int))));
+//size_t rows=temp;
+//int (*arr)[NOOFCHANNELS];
+//...              // get number of rows
+//arr = malloc(sizeof *arr * rows);
+/*
+if (arr)
+{
+  size_t i, j;
+  for (i = 0; i < temp; i++)
+    for (j = 0; j < NOOFCHANNELS; j++)
+      arr[i][j] = temp;
+}*/
+//SampleArray = (unsigned int*) malloc(temp * sizeof(int));  //memory allocated using malloc
+  //  if(SampleArray == NULL)                     
+    {
+    //    printf("Error! memory not allocated.");
+      //  exit(0);
+    }
+printf("\n..............");
+//SetChannelULN(temp);
+printf("\nPls enter sample delay");
+temp1=cin_int();
+printf("\n..............");
+
+//if(temp>0)
+//if(temp<5)
+{
+///temp=temp-1;
+//Select(temp);
+
+
+   if(getuid()!=0){
+      printf("You must run this program as root. Exiting.\n");
+      exit(EXIT_FAILURE);
+   }
+   pthread_t thread;
+   tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
+
+   // Allocate and initialize memory
+   prussdrv_init ();
+   prussdrv_open (PRU_EVTOUT_0);
+   prussdrv_open (PRU_EVTOUT_1);
+
+   // Map PRU's INTC
+   prussdrv_pruintc_init(&pruss_intc_initdata);
+
+   // Copy data to PRU memory - different way
+   prussdrv_map_prumem(PRUSS0_PRU0_DATARAM, &pru0DataMemory);
+   pru0DataMemory_int = (unsigned int *) pru0DataMemory;
+   // Use the first 4 bytes for the number of samples
+   *pru0DataMemory_int =temp;//1;// 500;
+   // Use the second 4 bytes for the sample delay in ms
+   *(pru0DataMemory_int+1) = temp1;//100;   // 2 milli seconds between samples
+
+   // Load and execute binary on PRU
+   prussdrv_exec_program (PRU_NUM, "./Fppm.bin");
+   if(pthread_create(&thread, NULL, &threadFunction, NULL)){
+       printf("Failed to create thread!");
+   }
+   int n = prussdrv_pru_wait_event (PRU_EVTOUT_0);
+   printf("PRU program completed, event number %d.\n", n);
+   printf("The data that is in memory is:\n");
+   printf("- the number of samples used is %d.\n", *pru0DataMemory_int);
+   printf("- the time delay used is %d.\n", *(pru0DataMemory_int+1));
+   unsigned int raw_distance = *(pru0DataMemory_int+2);
+//FreqChannel[ChannelIndex].count= *(pru0DataMemory_int+2);
+//FreqChannel[ChannelIndex].count-=FREQ512CALIB;
+   printf("- Channel=%u the  sample is %u.\n", ChannelIndex, FreqChannel[ChannelIndex].count);
+}
+   }
+
+   /* Disable PRU and close memory mappings */
+   prussdrv_pru_disable(PRU_NUM);
+   prussdrv_exit ();
+   return EXIT_SUCCESS;
+}
+

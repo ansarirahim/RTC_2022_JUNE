@@ -1,0 +1,5 @@
+g++ getcfgp927.cpp -o getcfgp927
+g++ getcfgp928.cpp -o getcfgp928
+g++ getcfgp929.cpp -o getcfgp929
+g++ getcfgp930.cpp -o getcfgp930
+

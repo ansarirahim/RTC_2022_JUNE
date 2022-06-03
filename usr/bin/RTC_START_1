@@ -1,0 +1,40 @@
+#!/bin/bash
+echo -e "ACK\n\r"
+
+sudo /root/160718/resetcounts
+
+#/root/160718/IDentifyChannel/P927c
+/root/160718/IDentifyChannel/P27/P927_1 100 1000 >/dev/null 2>&1
+# GET_RTC_CFG1
+ret=$?
+#echo $ret
+if [ $ret -eq 0 ]; then
+sudo /root/160718/1/P9_27/P927
+fi
+/root/160718/IDentifyChannel/P28/P928_1 100 1000 >/dev/null 2>&1
+# GET_RTC_CFG1
+ret=$?
+#echo $ret
+if [ $ret -eq 0 ]; then
+sudo /root/160718/1/P9_28/P928
+fi
+
+/root/160718/IDentifyChannel/P29/P929_1 100 1000 >/dev/null 2>&1
+# GET_RTC_CFG1
+ret=$?
+#echo $ret
+if [ $ret -eq 0 ]; then
+sudo /root/160718/1/P9_29/P929
+fi
+
+
+/root/160718/IDentifyChannel/P30/P930_1 100 1000 >/dev/null 2>&1
+# GET_RTC_CFG1
+ret=$?
+
+
+#echo $ret
+if [ $ret -eq 0 ]; then
+sudo /root/160718/1/P9_30/P930
+fi
+

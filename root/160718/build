@@ -1,0 +1,8 @@
+
+g++ /root/160718/getcounts.cpp -o /root/160718/getcounts
+g++ /root/160718/resetcounts.cpp -o /root/160718/resetcounts
+g++ /root/160718/getcfgp927.cpp -o /root/160718/getcfgp927
+g++ /root/160718/getcfgp928.cpp -o /root/160718/getcfgp928
+g++ /root/160718/getcfgp929.cpp -o /root/160718/getcfgp929
+g++ /root/160718/getcfgp930.cpp -o /root/160718/getcfgp930
+g++ /root/160718/getcfg.cpp -o /root/160718/getcfg
